@@ -66,6 +66,8 @@ final class SimplePluginProject {
           Set<Project> a = project.getAllprojects();
           
           foo();
+          doFirstCaptureProject();
+          doLastCaptureProject();
         }
         
         private void foo() {
@@ -81,6 +83,18 @@ final class SimplePluginProject {
           tasks.create("eagerTask");
           tasks.getByName("eagerTask");
           tasks.all(task -> {});
+        }
+
+        private void doFirstCaptureProject() {
+          project.getTasks().register("foo", task -> {
+            task.doFirst(f -> project.getLogger().quiet("uh oh!"));
+          });
+        }
+
+        private void doLastCaptureProject() {
+          project.getTasks().register("foo", task -> {
+            task.doLast(l -> project.getLogger().quiet("uh oh!"));
+          });
         }
       }
     '''.stripIndent())
