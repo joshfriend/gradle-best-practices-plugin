@@ -23,13 +23,13 @@ class GradleBestPracticesPlugin : Plugin<Project> {
 
       val baselineTask = tasks.register("bestPracticesBaseline", CreateBaselineTask::class.java)
 
-      // A RegularFileProperty is allowed to wrap a nullable RegularFile
-      @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
       val detectViolationsTask = tasks.register("detectViolations", DetectBestPracticesViolationsTask::class.java) {
         with(it) {
           classesDirs.setFrom(mainOutput)
-          baseline.set(extension.baseline.map { f ->
-            if (f.asFile.exists()) f else null
+          baseline.set(extension.baseline.flatMap {
+            // Weird avoidance of nullability annotation issues required til Gradle 9.0
+            // https://github.com/gradle/gradle/issues/25341
+            provider { if (it.asFile.exists()) it else null }
           })
           logLevel.set(extension.level)
           outputJson.set(layout.buildDirectory.file("reports/best-practices/report.json"))
@@ -37,14 +37,12 @@ class GradleBestPracticesPlugin : Plugin<Project> {
         }
       }
 
-      // A RegularFileProperty is allowed to wrap a nullable RegularFile
-      @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
       val checkBestPracticesTask = tasks.register("checkBestPractices", CheckBestPracticesTask::class.java) { t ->
         with(t) {
           reportJson.set(detectViolationsTask.flatMap { it.outputJson })
           reportText.set(detectViolationsTask.flatMap { it.outputText })
-          baseline.set(extension.baseline.map { f ->
-            if (f.asFile.exists()) f else null
+          baseline.set(extension.baseline.flatMap {
+            provider { if (it.asFile.exists()) it else null }
           })
           logLevel.set(extension.level)
           projectPath.set(project.path)

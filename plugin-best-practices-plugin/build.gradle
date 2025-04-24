@@ -85,12 +85,16 @@ testing {
 }
 
 gradlePlugin {
+  website = 'https://github.com/autonomousapps/gradle-best-practices-plugin'
+  vcsUrl = 'https://github.com/autonomousapps/gradle-best-practices-plugin'
+
   plugins {
     plugin {
       id = 'com.autonomousapps.plugin-best-practices-plugin'
       implementationClass = 'com.autonomousapps.GradleBestPracticesPlugin'
       displayName = 'Gradle Best Practices Plugin'
       description = 'Gradle Plugin that detects violations of Gradle best practices in Gradle Plugins'
+      tags = ['best practices']
     }
   }
 }
@@ -103,10 +107,4 @@ def check = tasks.named('check') {
 
 tasks.named('publishPlugins') {
   dependsOn(check)
-}
-
-pluginBundle {
-  website = 'https://github.com/autonomousapps/gradle-best-practices-plugin'
-  vcsUrl = 'https://github.com/autonomousapps/gradle-best-practices-plugin'
-  tags = ['best practices']
 }
